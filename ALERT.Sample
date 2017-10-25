@@ -1,0 +1,12 @@
+Here's a quick alert / confirmation message
+
+@IBAction func showAlert() {
+        print("Hello RayWenderlich :D")
+        let alert = UIAlertController(title: "Hello RayWenderlich", message: "This is my first app in this course", preferredStyle: .alert)
+        
+        let action = UIAlertAction(title: "Awesome!", style: .default, handler: nil)
+        
+        alert.addAction(action)
+        
+        present(alert, animated: true, completion: nil)
+    }
