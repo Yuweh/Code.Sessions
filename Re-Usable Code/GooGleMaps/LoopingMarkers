@@ -1,0 +1,55 @@
+// This is a delegate method for returning new locations from the NearbyMapsManager
+    func returnNewLocations(locations: NSArray) {
+        
+        // Clear our arrays and reset the map
+        locationCoordinates.removeAllObjects()
+        mapView.clear()
+        
+        // We loop through the results in our array then plot each one on the map
+        for i in 0 ... locations.count - 1 {
+            
+            let dict = locations[i] as! NSDictionary;
+            
+            // for locationCoordinate NSArray
+            let geometry = dict["geometry"] as! NSDictionary
+            let coordinates = geometry["location"] as! NSDictionary
+            
+            let longitude = coordinates["lng"] as! CLLocationDegrees
+            let latitude = coordinates["lat"] as! CLLocationDegrees
+            
+            let itemLocation = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+            //print(locations.count)
+            
+            // to compute distance from current location and atm coordinates
+            
+            let atmLocation = CLLocation(latitude: latitude, longitude: longitude)
+            let userLocation = CLLocation(latitude: currentLocation.coordinate.latitude, longitude: currentLocation.coordinate.longitude)
+            
+            
+            let distanceMeters = userLocation.distance(from: atmLocation)
+            let distanceKilometers = distanceMeters / 1000.00
+            let atmCoordinatesDistance = String(Double(round(100 * distanceKilometers) / 100)) + " KM"
+            
+            // for atmDetailsArray
+            
+            let atmName = dict["name"] as! String
+            let atmAddress = dict["vicinity"] as! String
+            //let atmDistance = atmCoordinatesDistance
+            
+            let atmInfo = AtmDetailsStruct(atmName: atmName, atmLocation: atmAddress, atmDistance: atmCoordinatesDistance)
+            //print(atmInfo) //*un/comment to/not test feed
+            
+    
+            // to populate variables above
+            
+            atmDetailsArray.append(atmInfo)
+            locationCoordinates.addObjects(from: [itemLocation])
+            atmTableView.reloadData()
+            //print(locationCoordinates.count) //*un/comment to/not test feed
+            //print(atmDetailsArray.count)  //*un/comment to/not test feed
+            
+            let marker = GMSMarker(position: itemLocation)
+            marker.title = dict["name"] as? String
+            marker.map = mapView
+        }
+    }
