@@ -3,7 +3,7 @@
 //  GBA
 //
 //  Created by Francis Jemuel Bergonia on 06/01/2018.
-//  Copyright © 2018 Republisys. All rights reserved.
+// 
 //
 
 import UIKit
