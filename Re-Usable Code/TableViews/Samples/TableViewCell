@@ -1,0 +1,42 @@
+import UIKit
+
+enum AtmDetailsCellViewPosition {
+    case top, middle, bottom
+}
+
+class AtmDetailsCellView: UITableViewCell {
+
+    
+    @IBOutlet weak var atmDistance: UILabel!
+    @IBOutlet weak var atmName: UILabel!
+    @IBOutlet weak var atmAddress: UILabel!
+    @IBOutlet weak var floatingContainer_view: UIView!
+    
+    var position: AtmDetailsCellViewPosition?{
+        didSet{
+            guard let position = position else { return }
+            
+//            self.underline_view.backgroundColor = GBAColor.gray.rawValue
+            
+            switch position {
+            case .top:
+                self.floatingContainer_view.roundedCorners([.topLeft, .topRight], radius: 10)
+            case .bottom:
+                self.floatingContainer_view.roundedCorners([.bottomLeft, .bottomRight], radius: 10)
+//                underline_view.backgroundColor = GBAColor.white.rawValue
+            case .middle: break
+            }
+            
+            self.layoutSubviews()
+        }
+    }
+    
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        self.backgroundColor = .clear
+    }
+
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+    }
