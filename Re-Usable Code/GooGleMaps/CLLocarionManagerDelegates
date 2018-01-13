@@ -1,0 +1,59 @@
+/***************************************************************/
+
+extension ViewController: CLLocationManagerDelegate {
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        if status == .authorizedWhenInUse {
+            locationManager.startUpdatingLocation()
+            mapView.isMyLocationEnabled = true
+
+            // This occurs if the user presses the button before our locations have been retreived
+            let alert = UIAlertController(title: "Current Location Needed", message: "We need your current location to provide more accurate information and for you to get the most out of this app", preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+            
+        }
+        else if status == .notDetermined {
+            
+            self.getAutoCompletePicker()
+            
+            // This occurs if the user presses the button before our locations have been retreived
+            let alert = UIAlertController(title: "Current Location Needed", message: "We need your current location to provide more accurate information and for you to get the most out of this app", preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+            
+        } else if status == .denied {
+            
+            self.getAutoCompletePicker()
+            
+            // This occurs if the user presses the button before our locations have been retreived
+            let alert = UIAlertController(title: "Current Location Needed", message: "We need your current location to provide more accurate information and for you to get the most out of this app", preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+            
+        } else {
+            
+            // This occurs if the user presses the button before our locations have been retreived
+            let alert = UIAlertController(title: "Current Location Needed", message: "We need your current location to provide more accurate information and for you to get the most out of this app", preferredStyle: .alert)
+            
+            alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
+        if let location = locations.first {
+            mapView.camera = GMSCameraPosition(target: location.coordinate, zoom: 15, bearing: 0, viewingAngle: 0)
+            mapView.animate(toLocation: location.coordinate)
+            self.updateNearbyLocations(currentLocation: location)
+            currentLocation = CLLocation(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+            locationManager.stopUpdatingLocation()
+            locationManager.delegate = nil
+            
+        }
+    }
+}
