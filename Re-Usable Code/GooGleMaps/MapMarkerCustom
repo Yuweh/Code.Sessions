@@ -1,0 +1,19 @@
+    
+    
+    func addMarker(_ location:CLLocation, atmName: String, atmAddress: String){
+        var locationMarker: GMSMarker!
+        if locationMarker != nil {
+            locationMarker.map = nil
+        }
+        locationMarker = GMSMarker(position: location.coordinate)
+        locationMarker.map = mapView
+        locationMarker.appearAnimation = GMSMarkerAnimation.pop
+        locationMarker.icon = GMSMarker.markerImage(with: UIColor.green)
+        locationMarker.opacity = 0.85
+        locationMarker.isFlat = true
+        locationMarker.title = atmName
+        locationMarker.snippet = atmAddress
+        mapView.selectedMarker=locationMarker
+        
+    }
+    
