@@ -12,6 +12,20 @@ I've been inspired by Allen Wang's 30 days of Swift and Sam Lu's 100 Days of Swi
 
 ## [LATEST PROJECTS]
 
+PROJECT: Global Bank Access (iOS)
+
+The Global Bank Access project is a development of a unified bill payment and remittance application. It supports web browsers and mobile devices (iOS and Android). Global Bank Access is an innovative, practical and efficient bill payment and money transfer system.
+
+
+Contribution/Part: (Developed from Scratch XD)
+
+1. ATM Finder / Locator
+
+2. Bank Check Image Processor
+
+3. Contact Support Messenger
+
+
 ## PET PROJECTS
 < Project Index >
 
