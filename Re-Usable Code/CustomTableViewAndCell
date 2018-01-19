@@ -1,0 +1,83 @@
+
+
+import UIKit
+import FontAwesome_swift
+
+class GBAConcernCellView: UITableViewCell{
+    private let _view: UIView = UIView()
+    var concernLabel: UILabel = UILabel()
+    //fileprivate(set) var concern: Concerns = .CannotAccessAccount
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+    }
+    
+    override func layoutSubviews() {
+        
+        self.addSubview(concernLabel)
+        self.addSubview(_view)
+        
+        self._view.topAnchor.constraint(equalTo: self.topAnchor).Enable()
+        self._view.leadingAnchor.constraint(equalTo: self.leadingAnchor).Enable()
+        self._view.trailingAnchor.constraint(equalTo: self.trailingAnchor).Enable()
+        self._view.bottomAnchor.constraint(equalTo: self.bottomAnchor).Enable()
+
+        self.concernLabel.topAnchor.constraint(equalTo: self._view.topAnchor).Enable()
+        self.concernLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor).Enable()
+        self.concernLabel.bottomAnchor.constraint(equalTo: self._view.bottomAnchor).Enable()
+        self.concernLabel.trailingAnchor.constraint(equalTo: self._view.trailingAnchor).Enable()
+    }
+}
+
+class GBAPopOverConcernTableview: GBAPopOverRootViewController{
+    
+    var concern: [Concerns] = [Concerns]()
+    override var preferredContentSize: CGSize{
+        get{
+            let multiplier = self.concern.count > 4 ? 4: self.concern.count
+            return CGSize(width: self.view.width, height: 44 * multiplier.Float)
+        }
+        set { super.preferredContentSize = newValue }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.tableView.delegate = self
+        self.tableView.dataSource = self
+        
+        concern.append(.CannotAccessAccount)
+        concern.append(.CannotReload)
+        concern.append(.CannotTransferFunds)
+        
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let index = indexPath.row
+        let cell = GBAConcernCellView()
+        cell.concernLabel.text = concern[index].name
+        //cell.concern = concern[index]
+        return cell
+    }
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return concern.count
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        self.dismiss(animated: true) {
+            guard let del = self.delegate else { fatalError("delegate was not properly set for GBAPopOverContryTableView") }
+            
+            guard let cellView = tableView.cellForRow(at: indexPath) else { fatalError("cellView can't be found") }
+            
+            del.GBAPopOver(didSelect: cellView)
+        }
+    }
+}
+
+
+
