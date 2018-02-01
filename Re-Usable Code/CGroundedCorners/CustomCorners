@@ -1,0 +1,16 @@
+
+//FOR UIimage: ex. Profile Photo
+
+// @ViewDidLoad
+
+        //profile_imageView: Result Square with Rounded Corners
+        self.profile_imageView.layer.cornerRadius = 5
+        self.profile_imageView.clipsToBounds = true
+        self.profile_imageView.layer.borderWidth = 3
+        self.profile_imageView.layer.borderColor = UIColor.white.cgColor
+        
+        //profile_imageView: Perfect Circle
+        self.profile_imageView.layer.cornerRadius = profile_imageView.frame.size.width/2
+        self.profile_imageView.clipsToBounds = true
+        self.profile_imageView.layer.borderWidth = 3
+        self.profile_imageView.layer.borderColor = UIColor.white.cgColor
