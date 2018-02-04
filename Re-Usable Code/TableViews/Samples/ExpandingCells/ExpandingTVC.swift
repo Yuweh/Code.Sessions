@@ -97,7 +97,8 @@ extension SupportViewController: UITableViewDataSource{
         // Row is DefaultCell
         if let rowData = FAQuestionsData?[indexPath.row] {
             let defaultCell = tableView.dequeueReusableCell(withIdentifier: "DefaultCell", for: indexPath) as! FAQDefaultCell
-                defaultCell.textLabel?.text = rowData.customerQuestion
+            //defaultCell.textLabel?.text = rowData.customerQuestion
+            defaultCell.QuestionLabel?.text = rowData.customerQuestion
             return defaultCell
         }
             // Row is ExpansionCell
@@ -112,8 +113,10 @@ extension SupportViewController: UITableViewDataSource{
                 //  Get the index of the answer data (e.g. if there are multiple ExpansionCells
                 let answerIndex = indexPath.row - parentCellIndex - 1
                 
+                expansionCell.AnswerLabel?.text = rowData.customerAnswer?[answerIndex].customerAnswer
+                
                 //  Set the cell's data
-                expansionCell.textLabel?.text = rowData.customerAnswer?[answerIndex].customerAnswer
+                //expansionCell.textLabel?.text = rowData.customerAnswer?[answerIndex].customerAnswer
                 expansionCell.selectionStyle = .none
                 return expansionCell
             }
