@@ -1,0 +1,46 @@
+
+
+// import Alamofire for Upload Photo
+    func uploadWithAlamofire() {
+      
+        var loadingIndicator: LoadingIndicatorView?
+        
+        let image = sendImage.image!
+        Alamofire.upload(
+            multipartFormData: { multipartFormData in
+                
+                if let imageData = UIImageJPEGRepresentation(image, 0.5) {
+                    multipartFormData.append(imageData, withName: "uploadedImage", fileName: "\(self.id!)_\(Timestamp).png", mimeType: "image/png")
+                }
+            },
+            to: "\(Constants.productionServerLocal)/api/kyc/\(id!)/upload/kycselfphoto/uploadImageMobile",
+            encodingCompletion: { encodingResult in
+                switch encodingResult {
+                case .success(let upload, _, _):
+                    
+                    loadingIndicator = LoadingIndicatorView()
+                    UIApplication.shared.keyWindow!.addSubview(loadingIndicator!)
+                    
+                    
+                    upload.uploadProgress(closure: { (Progress) in
+                        print("Upload Progress: \(Progress.fractionCompleted)")
+                    })
+                    
+                    
+                    upload.responseJSON { response in
+                        debugPrint(response)
+                        
+                        if let loadingIndicator = loadingIndicator {
+                            loadingIndicator.removeFromSuperview()
+                        }
+                        
+                        userPoint.requestForState(self)
+                        let controller = self.storyboard?.instantiateViewController(withIdentifier: Storyboard.SuccessfullySubmittedSelfieViewControllerID) as! SuccessfullySubmittedSelfieViewController
+                        self.navigationController?.pushViewController(controller, animated: true)
+                    }
+                case .failure(let encodingError):
+                    print(encodingError)
+                }
+            }
+        )
+    }
