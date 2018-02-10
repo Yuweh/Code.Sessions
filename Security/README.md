@@ -17,11 +17,20 @@ For TouchID, you can store up to five finger prints with Touch ID so you could s
 
 For Face ID, it only stores one “face print”. So, it is not possible to store for logins multiple users on the same device.(Only available for iPhoneX)
 
-SPEC REQ: 
+Sample CODE take aways: 
+
 
 ## Keychain Services
 -----
-Keychain Services provides secure storage of passwords, keys, certificates, and notes for one or more users. A user can unlock a keychain with a single password, and any Keychain Services–aware application can then use that keychain to store and retrieve passwords. This code samples contains Keychain Services's functions and data structures.
+Keychain offers a secure storage for saving sensitive data, such as user names and passwords, with NSUserDefaults, plist or similar methods for one or more users. A user can unlock a keychain with a single password, and any Keychain Services–aware application can then use that keychain to store and retrieve passwords. This code samples contains Keychain Services's functions and data structures.
+
+Sample CODE take aways:
+
+How to SAVE
+
+How to RETRIEVE/READ
+
+How to REMOVE
 
 
 ------
@@ -42,3 +51,10 @@ ref: https://www.owasp.org/index.php/About_The_Open_Web_Application_Security_Pro
 https://www.owasp.org/index.php/IOS_Developer_Cheat_Sheet
 
 https://www.owasp.org/index.php/IOS_Application_Security_Testing_Cheat_Sheet
+
+ACCESS KEYCHAINS:
+How to use iCloud Keychain on iPhone and iPad: https://www.imore.com/how-use-icloud-keychain-iphone-and-ipad
+
+Official Guide from Apple: 
+https://developer.apple.com/documentation/security/keychain_services?preferredLanguage=occ
+https://support.apple.com/kb/PH20093?locale=en_US
