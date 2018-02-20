@@ -14,6 +14,25 @@ let data = UIImageJPEGRepresentation(img, 1.0)
     }
     
     //*********************************** SAMPLE ********************************
+
+//FOR PNG:
+
+if let image = UIImage(named: "example.png") {
+    if let data = UIImagePNGRepresentation(image) {
+        let filename = getDocumentsDirectory().appendingPathComponent("copy.png")
+        try? data.write(to: filename)
+    }
+}
+
+
+//FOR JPEG
+
+if let image = UIImage(named: "example.png") {
+    if let data = UIImageJPEGRepresentation(image, 0.8) {
+        let filename = getDocumentsDirectory().appendingPathComponent("copy.jpeg")
+        try? data.write(to: filename)
+    }
+}
     
     
     
