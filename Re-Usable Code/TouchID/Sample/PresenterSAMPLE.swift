@@ -1,8 +1,5 @@
-
-//  Presenter.SAMPLE
 //
 //  PinCodeLogInPresenter.swift
-//  GBA
 
 
 import Foundation
@@ -17,6 +14,7 @@ class PinCodeLogInPresenter: EntryRootPresenter {
     var submittedForm: LoginFormEntity? = nil
     
     func processLogin(form: LoginFormEntity, controller: PinCodeLogInViewController){
+       
         guard let nav = controller.navigationController else { fatalError("NavigationViewController can't properly parsed in LoginPresenter")}
         guard let bridge = dataBridgeToView else { fatalError("dataBridge was not implemented in LoginPresenter") }
         
@@ -26,7 +24,9 @@ class PinCodeLogInPresenter: EntryRootPresenter {
             print("@Presenter")
             print(form)
             print(reply)
+            
             switch statusCode{
+            
             case .fetchSuccess:
                 let authData = UserAuthentication(json: reply)
                 authData.rewrite()
@@ -44,18 +44,25 @@ class PinCodeLogInPresenter: EntryRootPresenter {
                 case .twoWay:
                     self.wireframe.presentCodeVerificationViewController(
                         from: self.view as! GBAVerificationCodeDelegate,
-                        completion: {
-                            guard let navigator = self.view.navigationController else{
-                                fatalError("NavigationController was not found in RegistrationPresenter")
-                            }
-                            self.fetchUserProfile(successHandler: { (reply, replyCode) in
-                                DashboardWireframe(navigator).presentTabBarController()
-                            })
+                        completion: { ()
+
                     }, apiCalls: { (code, vc) in
                         print(code)
                         self.interactor.remote.SubmitLoginVerificationCodes(code: code, accessToken: "String", successHandler: { (reply, replyCode) in
-                            authData.rewrite()
-                            DashboardWireframe(nav).presentTabBarController()
+                            print(reply)
+                            print(replyCode.rawValue)
+                            print(replyCode)
+                            
+                            switch replyCode{
+                            case .forbidden:
+                                self.showAlert(with: "Message", message: "Incorrect or expired verification code", completion: { print(reply) })
+
+                            case .fetchSuccess:
+                                DashboardWireframe(nav).presentTabBarController()
+                            
+                            default:
+                                print(reply)
+                            }
                         })
                     }, backAction: {
                         self.view.navigationController?.popToRootViewController(animated: true)
@@ -116,7 +123,7 @@ class PinCodeLogInPresenter: EntryRootPresenter {
         guard let number = self.submittedForm?.mobile else {
             fatalError("Mobile number was not set for LoginPresenter")
         }
-        self.interactor.remote.ResendVerificationCode(to: number) { (reply, statusCode) in
+        self.interactor.remote.ResendVerificationCode { (reply, statusCode) in
             guard let code = reply["message"] as? String else{
                 fatalError("Verification code not found in \(reply)")
             }
@@ -151,13 +158,6 @@ class PinCodeLogInPresenter: EntryRootPresenter {
             }
         }
     }
+    
+    
 }
-
-
-
-
-
-
-
-
-
