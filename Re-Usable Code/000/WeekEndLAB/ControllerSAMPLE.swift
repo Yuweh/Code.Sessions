@@ -1,56 +1,67 @@
 //
-//  PinCodeLogInViewController.swift
+//  TouchIDLogInViewController.swift
 //
 
 import UIKit
+import LocalAuthentication
 
-class PinCodeLogInViewController: EntryModuleViewController, UITextFieldDelegate{
+class TouchIDLogInViewController: EntryModuleViewController{
 
     @IBOutlet weak var profile_imageView: UIImageView!
     @IBOutlet weak var fullName_label: UILabel!
-    @IBOutlet weak var pinCodeTextField: UITextField!
-    
-    var inputPinCode = false
-    var numberOnScreen : Double = 0
     var failedAttempt = 0
+    
+    //EXP.
+    fileprivate var user: User{
+        get{
+            guard let usr = GBARealm.objects(User.self).first else{
+                fatalError("User not found")
+            }
+            return usr
+        }
+    }
     
     fileprivate var primaryUser: PrimaryUser{
         get{
-            let usr = GBARealm.objects(PrimaryUser.self)
-            print(usr)
-            
-            return usr.first!
-        }
-    }
-    
-    fileprivate var pinUsers: PinUsers{
-        get{                //GBARealm.objects(PinUsers.self).first else{ //to be tested
-            guard let pinUser = GBARealm.object(ofType: PinUsers.self, forPrimaryKey: "\(primaryUser.userId!)") else{
+            guard let usr = GBARealm.objects(PrimaryUser.self).first else{
                 fatalError("User not found")
             }
-            print(pinUser)
-            return pinUser
+            return usr
         }
     }
     
-    var currentPresenter: PinCodeLogInPresenter{
-        guard let prsntr = self.presenter as? PinCodeLogInPresenter
+    //Adapted Form LogIn
+    private var loginForm: LoginFormEntity{
+        let userProfile = self.primaryUser
+        //print(userProfile)
+        return LoginFormEntity(mobile: userProfile.userNumber!, password: userProfile.userPassword!, uuid: "")
+    }
+    
+    var currentPresenter: TouchIDLogInPresenter{
+        guard let prsntr = self.presenter as? TouchIDLogInPresenter
             else{ fatalError("Error in parsing presenter for RegistrationViewController") }
         return prsntr
     }
     
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.setBackground()
-        (self._presenter as! PinCodeLogInPresenter).dataBridgeToView = self
+        (self._presenter as! TouchIDLogInPresenter).dataBridgeToView = self
         self.presenter.set(view: self)
-        self.pinCodeTextField.delegate = self
-        
-        
+        self.navigationController?.isNavigationBarHidden = true
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.navigationController?.isNavigationBarHidden = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        self.failedAttempt += 1
+        self.authenticateUser()
+        self.navigationController?.isNavigationBarHidden = true
     }
     
     override func didReceiveMemoryWarning() {
@@ -77,149 +88,149 @@ class PinCodeLogInViewController: EntryModuleViewController, UITextFieldDelegate
         self.view.layer.insertSublayer(overlay, at: 1)
         
     }
+    
+    private func repopulateProfileInfo(){
+        let userProfile = self.primaryUser
+        self.fullName_label.text = "\(userProfile.userFullName!)"
+    }
 
-    @IBAction func numbers(_ sender: UIButton)
-    {
-        if self.inputPinCode == true
-        {
-            self.pinCodeTextField.text = String(sender.tag)
-            self.numberOnScreen = Double(self.pinCodeTextField.text!)!
-            self.inputPinCode = false
-            if self.pinCodeTextField.text!.count == 6 {
-                print("Ready for PIN Code LogIn")
-                //self.pinCodeLogInTapped()
-                self.existingPinUserValidator(pin: self.pinCodeTextField.text!)
-            } else if self.pinCodeTextField.text!.count > 6 {
-                //Please Re-Enter your 6 digit PIN
-                self.showReusableAlert(title: "PIN Code Incorrect", message: "Please Re-Enter your 6 digit PIN")
+    
+    func authenticateUser() {
+        let authContext : LAContext = LAContext()
+        var error: NSError?
+        
+        if authContext.canEvaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, error: &error){
+            authContext.evaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Biometric Check for GBA", reply: {successful, error -> Void in
+                if successful{
+                    print("TouchID Yes")
+                    self.showLoginSuccess()
+                }
+                else {
+                    print("TouchID No")
+                    self.failedAttempt += 1
+                    //self.showAlternativeAttemptAlert(title: "Touch ID Authentication Failed", message: "Do you  like to try our Default Login Page?")
+                
+                    let message: String
+                    
+                    switch error {
+                    case LAError.appCancel?:
+                        message = "Authentication was cancelled by application"
+                        
+                    case LAError.authenticationFailed?:
+                        message = "The user failed to provide valid credentials"
+                         //self.showAlternativeAttemptAlert(title: "Login Failed", message: "You have failed to provide valid credentials for TouchID Login. Do you like to be directed to our default Login Page")
+                        
+                    case LAError.invalidContext?:
+                        message = "The context is invalid"
+                        
+                    case LAError.passcodeNotSet?:
+                        message = "Passcode is not set on the device"
+                        
+                    case LAError.systemCancel?:
+                        message = "Authentication was cancelled by the system"
+                        
+                    case LAError.touchIDLockout?:
+                        message = "Too many failed attempts."
+                        self.showMaxAttemptAlert()
+                        
+                    case LAError.touchIDNotAvailable?:
+                        message = "TouchID is not available on the device"
+                        
+                    case LAError.userCancel?:
+                        message = "The user did cancel"
+                        
+                    case LAError.userFallback?:
+                        message = "You may choose Login with Password to continue"
+                        
+                    default:
+                        message = "Face ID/Touch ID may not be configured"
+                    }
+                    self.showAlertWithTitle(title: "Login Failed", message: message)
+                }
             }
-        }
-        else
-        {
-            self.pinCodeTextField.text = pinCodeTextField.text! + String(sender.tag)
-            numberOnScreen = Double(self.pinCodeTextField.text!)!
-            if self.pinCodeTextField.text!.count == 6 {
-                print("Ready for PIN Code LogIn")
-                //self.pinCodeLogInTapped()
-                self.existingPinUserValidator(pin: self.pinCodeTextField.text!)
-            } else if self.pinCodeTextField.text!.count > 6 {
-                //Please Re-Enter your 6 digit PIN
-                self.showReusableAlert(title: "PIN Code Incorrect", message: "Please Re-Enter your 6 digit PIN")
-            }
+            )
         }
     }
     
-
-    @IBAction func BackTapped(_ sender: UIButton) {
-        self.pinCodeTextField.text = ""
-    }
     
-    
-    func pinCodeLogInTapped() {
-        print("pinCodeLogInTapped pressed")
-        //print(loginForm)
-        let newUser = self.primaryUser
-        let newForm = LoginFormEntity(mobile: newUser.userNumber!, password: newUser.userPassword!, uuid: "")
-        self.currentPresenter.processLogin(form: newForm, controller: self)
+    @IBAction func loginButtonClicked(sender: UIButton) {
+        if self.failedAttempt == 5 {
+            self.showMaxAttemptAlert()
+            print("Almost for Testing")
+        } else {
+            print("Still on process")
+            //self.failedAttempt += 1
+            self.authenticateUser()
+            print(failedAttempt)
+        }
     }
     
     func presentDefaultLogin() {
         self.presenter.wireframe.navigate(to: .Loginscreen)
     }
     
-    @IBAction func cancelTapped(_ sender: Any) {
+    @IBAction func cancelButtonTapped(_ sender: Any) {
         self.presentDefaultLogin()
     }
-
-    private func repopulateProfileInfo(){
-        let userProfile = self.primaryUser
-        self.fullName_label.text = "\(userProfile.userFullName!)"
-        print(userProfile.userFullName!)
+    
+    func showAlertWithTitle(title: String, message: String) {
+        let alertVC = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Ok", style: .default, handler: nil)
+        alertVC.addAction(okAction)
+        present(alertVC, animated: true, completion: nil)
     }
     
-    
-    @IBAction func PRINT(_ sender: UIButton) {
-        print(self.pinCodeTextField.text!)
+    func showLoginSuccess() {
+        let alertController = UIAlertController(title: nil, message: "Touch ID Authentication Succeeded", preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (alert:UIAlertAction!) -> Void in
+            self.navigateToDashboard()}))
+        present(alertController, animated: true, completion: nil)
     }
     
-    //For Existing PinUsers
-    func existingPinUserValidator(pin: String) {
-        let enteredPin = pin
-        if enteredPin == pinUsers.pinNumber {
-            self.showSuccessAlert()
-            //self.pinCodeLogInTapped()
-        } else {
-            self.pinCodeTextField.text = ""
-            if self.failedAttempt == 5 {
-                self.showMaxAttemptAlert()
-                print("Almost for Testing")
-            } else {
-                print("Still on process")
-                self.failedAttempt += 1
-                self.showReusableAlert(title: "PIN Code Incorrect", message: "Please Re-Enter your 6 digit PIN")
-                print(failedAttempt)
-            }
-        }
-    }
-    
-    
-    
-    // Alert for the AlertAction()
-    
-    func showReusableAlert(title: String, message: String) {
-        let alertView = UIAlertController(title: title,
-                                          message: message,
+    func showFailAlert() {
+        let alertView = UIAlertController(title: nil,
+                                          message: "Touch ID Authentication Failed",
                                           preferredStyle:. alert)
         alertView.addAction(UIAlertAction(title: "Ok", style: .default, handler: nil))
         present(alertView, animated: true)
     }
     
-    func showSuccessAlert() {
-        let alertView = UIAlertController(title: "Login Successful",
-                                          message: "Your account will now be processed",
-                                          preferredStyle:. alert)
-        alertView.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (alert:UIAlertAction!) -> Void in
-            self.pinCodeLogInTapped()}))
+    func navigateToDashboard(){
+            let newUser = self.primaryUser
+            let newForm = LoginFormEntity(mobile: newUser.userNumber!, password: newUser.userPassword!, uuid: "")
+            self.currentPresenter.processLogin(form: newForm, controller: self)
+    }
 
+    func showAlternativeAttemptAlert(title: String, message: String) {
+        let alertView = UIAlertController(title: title,
+                                          message: message,
+                                          preferredStyle:. alert)
+        alertView.addAction(UIAlertAction(title: "Yes", style: .default, handler: { (alert:UIAlertAction!) -> Void in
+            self.presentDefaultLogin()}))
+        alertView.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
         present(alertView, animated: true)
     }
     
     func showMaxAttemptAlert() {
-        let alertView = UIAlertController(title: "PIN Code Login Failed",
+        let alertView = UIAlertController(title: "TouchID Login Failed",
                                           message: "You have reached maximum number of attempts for PIN Code Login. You will now be directed to our default Login Page",
                                           preferredStyle:. alert)
         alertView.addAction(UIAlertAction(title: "Ok", style: .default, handler: { (alert:UIAlertAction!) -> Void in
             self.presentDefaultLogin()}))
+        //        let okAction = UIAlertAction(title: "Ok", style: .default)
+        //        alertView.addAction(okAction)
         present(alertView, animated: true)
     }
     
-    //EXP
-    func presentVerificationCode(code: String){
-        let alert = UIAlertController(title: "CODE", message: code, preferredStyle: .alert)
-        
-        self.present(alert, animated: true, completion: nil)
-        Timer.scheduledTimer(withTimeInterval: 10, repeats: true) { _ in
-            alert.dismiss(animated: true, completion: nil)
-        }
-    }
-    
-    
-    
-    
-    
-    //*************************************************************************
 }
-//*************************************************************************
 
-
-extension PinCodeLogInViewController: DataDidReceivedFromPinCodeLogin{
+extension TouchIDLogInViewController: DataDidReceivedFromTouchIDLogin{
     func didReceiveVerificationData(code: String) {
-        //self.presentVerificationCode(code: code)
-        self.showReusableAlert(title: "Notice", message: "Please check your mobile for verification")
     }
 }
 
-extension PinCodeLogInViewController: GBAVerificationCodeDelegate{
+extension TouchIDLogInViewController: GBAVerificationCodeDelegate{
+    
     func ResendButton_tapped(sender: UIButton) {
         self.currentPresenter.resendVerificationCode{
             
