@@ -1,9 +1,5 @@
 //
 //  AccessSettingsMainViewController.swift
-//  GBA
-//
-//  Created by Gladys Prado on 12/12/17.
-//  Copyright © 2017 Republisys. All rights reserved.
 //
 
 import Foundation
