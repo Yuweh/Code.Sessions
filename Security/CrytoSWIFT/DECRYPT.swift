@@ -8,3 +8,11 @@
     
     APPLY to let newFullName = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: userProfile.Fullname)
         
+        let firstName = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: userProfile.firstname)
+        let lastName = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: userProfile.lastname)
+        
+        
+        let userFullName = "\(firstName) \(lastName)"
+        
+        self.cardImageView_contrainer
+            .set(owner: userFullName)
