@@ -23,6 +23,8 @@ then open workspace ver of Project / Import
 
 ### Commands for Git
 
+git clone //projectlink
+
 cd Desktop/projectA
 
 git remote add upstream production link
