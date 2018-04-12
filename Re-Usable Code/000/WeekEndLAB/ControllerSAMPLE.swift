@@ -1,3 +1,44 @@
+    
+    func createUserWithFirebase() {
+        self.setButtonEnabled()
+        let userProfile = self.setUserInfo
+        let userID = self.user
+        let userEmail = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: userID.email)
+        let password = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: userProfile.userPassword!)
+        //createUser or signIn
+        Auth.auth().createUser(withEmail: userEmail, password: password) { (user, error) in
+            if error != nil {
+                print(error!)
+            } else {
+                //let firebaseUserID = Auth.auth().currentUser!.uid
+                self.saveToKeychain()
+                self.newUserLogInValidator(registeredUserID: String(self.user.id), enteredLogInType: LogInPreference.Password.type)
+                //self.currentPresenter.setDeviceRequest(token: firebaseUserID, uuid: UUIDGenerator.deviceUUID.value)
+            }
+        }
+    }
+    
+    
+    func signInWithFirebase() {
+        let userEmail = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: self.user.email)
+        let password = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: self.setUserInfo.userPassword!)
+
+        
+        Auth.auth().signIn(withEmail: userEmail, password: password) { (user, error) in
+            if error != nil {
+                print(error!)
+            } else {
+                //let firebaseUserID = Auth.auth().currentUser!.uid
+                self.saveToKeychain()
+                self.newUserLogInValidator(registeredUserID: String(self.user.id), enteredLogInType: LogInPreference.Password.type)
+                //self.currentPresenter.setChangeDevice(token: firebaseUserID, uuid: UUIDGenerator.deviceUUID.value)
+            }
+        }
+    }
+
+
+
+
 //
 //
 
