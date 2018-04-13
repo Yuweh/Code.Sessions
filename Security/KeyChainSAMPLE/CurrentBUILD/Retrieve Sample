@@ -1,0 +1,10 @@
+
+
+        let keychainUserMobile = Keychain(service: "userMobile")
+        let keychainPassword = Keychain(service: "password")
+
+        let userNumber = keychainUserMobile[registeredUser.userID!]
+        let userPassword = keychainPassword[registeredUser.userID!]
+        
+        let newUserNumber = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: userNumber!)
+        let newUserPassword = self.decryptUserData(key: LockGenerator.key.value, iv: LockGenerator.iv.value, userData: userPassword!)
