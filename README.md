@@ -23,6 +23,23 @@ install Podfile: pod install
 then open workspace ver of Project / Import 
 
 
+For New Projects:
+Create new repository @BitBucket or @GitHub
+
+cd Desktop
+
+git clone "url"
+
+cd "to folder or target"
+
+git add .
+
+git commit -m "Initial"
+
+git push
+
+
+
 Commands for Git
 
 git clone //projectlink
