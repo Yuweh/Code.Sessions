@@ -8,8 +8,8 @@ mostly works with
 [![Platform](https://img.shields.io/badge/platform-iOS%2011-green.svg)](https://developer.apple.com/ios/)
 
 
-Commands for Cocoapods
-
+### Commands for Cocoapods
+----
 to install CocoaPods: sudo gem install cocoapods
 
 create the Podfile: pod init
@@ -21,7 +21,8 @@ install Podfile: pod install
 then open workspace ver of Project / Import 
 
 
-For New Projects:
+### For New Projects:
+-----
 Create new repository @BitBucket or @GitHub
 
 cd Desktop
@@ -38,8 +39,8 @@ git push
 
 
 
-Commands for Git
-
+### Commands for Git
+-----
 git clone //projectlink
 
 cd Desktop/projectA
