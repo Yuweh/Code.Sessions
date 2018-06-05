@@ -58,6 +58,15 @@ git push origin
 git checkout -b projectA.1
 
 
-
+…or create a new repository on the command line
+echo "# BLE-ProtoType" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/Yuweh/BLE-ProtoType.git
+git push -u origin master
+…or push an existing repository from the command line
+git remote add origin https://github.com/Yuweh/BLE-ProtoType.git
+git push -u origin master
 
 [![forthebadge](http://forthebadge.com/images/badges/made-with-swift.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
