@@ -37,6 +37,9 @@ git commit -m "Initial"
 
 git push
 
+git status
+
+git diff
 
 
 ### Commands for Git
