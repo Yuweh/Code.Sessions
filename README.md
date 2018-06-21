@@ -18,8 +18,19 @@ open the Podfile: open -a Xcode Podfile
 
 install Podfile: pod install
 
-then open workspace ver of Project / Import 
 
+
+### Commands for Carthage
+----
+to install Carthage: choose either Homebrew or thru .pkg installer
+
+create the Podfile: touch Cartfile
+
+open the Podfile: open -a Xcode Cartfile
+
+install Podfile: carthage update -- platform iOS
+ 
+ 
 
 ### For New Projects:
 -----
