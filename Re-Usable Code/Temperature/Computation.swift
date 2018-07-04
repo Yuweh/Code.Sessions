@@ -20,21 +20,21 @@
 
 
 // MARK: THI Observer
-    private func setTHIobservers() {
-        
-        //
-        _ = debugViewController.vTHIEnabled.asObservable().subscribe { value in
-            if let element = value.element {
-                print("\(element) THI Value computed - now ready for testing  *** ")
-            }
+
+        if preferences.object(forKey: TktConstants.Key.DebugButtonVisibility) != nil {
+            let settings = preferences.integer(forKey: TktConstants.Key.DebugButtonVisibility)
+            
+            debug.isHidden = (settings == 1) ? false : true
         }
-    }
 
 
 
+// MARK: THI Setter
 
 
-
+            debug.isHidden = false
+            preferences.set(1, forKey: TktConstants.Key.DebugButtonVisibility)
+            preferences.synchronize()
 
 
 
