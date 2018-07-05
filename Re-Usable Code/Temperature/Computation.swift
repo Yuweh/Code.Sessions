@@ -23,24 +23,49 @@
             }
         }
 
+    // MARK: TKT Constants for THI
+        static let SettingsTHIVisibility = "SettingsTHIVisibility"
+        static let SettingsHorticultureVisibility = "SettingsHorticultureVisibility"
+        static let SensorMainTHIVisibility = "SensorMainTHIVisibility"
+        static let SensorMainHorticultureVisibility = "SensorMainHorticultureVisibility"
 
-
-// MARK: THI Observer
-
-        if preferences.object(forKey: TktConstants.Key.DebugButtonVisibility) != nil {
-            let settings = preferences.integer(forKey: TktConstants.Key.DebugButtonVisibility)
-            
-            debug.isHidden = (settings == 1) ? false : true
+    // MARK: THI Observer
+    private func setTHIobservers() {
+        
+        // From Debug's THI Notifier
+        if preferences.object(forKey: TktConstants.Key.SettingsTHIVisibility) != nil {
+            let settings = preferences.integer(forKey: TktConstants.Key.SettingsTHIVisibility)
+            if settings == 1 {
+                print(" Settings THI READY for further development")
+                //set switches here
+                self.tempHumContainer.isHidden = true
+                self.thiContainer.isHidden = false
+            } else if settings == 0 {
+                print("Settings THI Disabled yet ready for further development")
+                //set switches here
+                self.tempHumContainer.isHidden = false
+                self.thiContainer.isHidden = true
+            }
         }
+        
+        // From Debug's Horticulture Notifier
+        if preferences.object(forKey: TktConstants.Key.SettingsHorticultureVisibility) != nil {
+            let settings = preferences.integer(forKey: TktConstants.Key.SettingsHorticultureVisibility)
+            if settings == 1 {
+                print("Horticulture READY for further development")
+                //set switches here
+            } else if settings == 0 {
+                print("Horticulture Disabled yet ready for further development")
+                //set switches here
+            }
+        }
+    }
 
 
 
 // MARK: THI Setter
 
 
-            debug.isHidden = false
-            preferences.set(1, forKey: TktConstants.Key.DebugButtonVisibility)
-            preferences.synchronize()
 
 
 
