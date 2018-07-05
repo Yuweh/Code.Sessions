@@ -1,6 +1,12 @@
 
 // THI Computation
 
+            // Main
+                static func computeTHI(celcius: Float, humidity: Float) -> Float {
+            let thiValue: Float = (1.8 * celcius + 32) - ((0.55 - 0.0055 * humidity) * (1.8 * celcius - 26))
+        return thiValue
+    }
+
             // MARK: THI Method
             if let tempValue = Float(sensor.sensorTemperature.trimmingCharacters(in: TktConstants.CharSet.climateDigits.inverted)),
                 let humValue = Float(sensor.sensorTemperature.trimmingCharacters(in: TktConstants.CharSet.climateDigits.inverted)) {
