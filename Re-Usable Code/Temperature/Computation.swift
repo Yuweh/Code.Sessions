@@ -25,9 +25,9 @@
 
     // MARK: TKT Constants for THI
         static let SettingsTHIVisibility = "SettingsTHIVisibility"
-        static let SettingsHorticultureVisibility = "SettingsHorticultureVisibility"
-        static let SensorMainTHIVisibility = "SensorMainTHIVisibility"
-        static let SensorMainHorticultureVisibility = "SensorMainHorticultureVisibility"
+        static let SettingsHorticultureVisibility = "SettingsHorticultureVisibility" //OnHOLD
+        static let SensorMainTHIVisibility = "SensorMainTHIVisibility" //OnHOLD
+        static let SensorMainHorticultureVisibility = "SensorMainHorticultureVisibility" //OnHOLD
 
     // MARK: THI Observer
     private func setTHIobservers() {
