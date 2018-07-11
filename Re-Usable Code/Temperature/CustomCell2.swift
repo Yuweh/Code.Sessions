@@ -1,5 +1,8 @@
     
-    // MARK: Properties
+    // MARK: THI Properties
+    @IBOutlet weak var defaultStackView: UIView!
+    @IBOutlet weak var thiStackView: UIView!
+
     @IBOutlet weak var containerTHI: CustomRowView!
     @IBOutlet weak var sensorIconTHI: CustomButton!
     @IBOutlet weak var sensorNameTHI: UILabel!
@@ -38,20 +41,7 @@
     
     private func thiContainerEnabler(isHidden: Bool) {
         self.thiStackView.isHidden = isHidden
-        self.container.isHidden = !isHidden
-        self.sensorIcon.isHidden = !isHidden
-        self.sensorName.isHidden = !isHidden
-        self.sensorTemperature.isHidden = !isHidden
-        self.sensorTemperatureImage.isHidden = !isHidden
-        self.sensorHumidity.isHidden = !isHidden
-        self.sensorHumidityImage.isHidden = !isHidden
-        self.sensorVOC.isHidden = !isHidden
-        self.sensorVOCImage.isHidden = !isHidden
-        self.sensorCO2.isHidden = !isHidden
-        self.sensorCO2Image.isHidden = !isHidden
-        self.timeStamp.isHidden = !isHidden
-        self.activityIndicator.isHidden = !isHidden
-        self.bottom_bg_color.isHidden = !isHidden
+        self.defaultStackView.isHidden = !isHidden
     }
     
     private func setUpDefaultViewElements(data: SensorListCellData) {
