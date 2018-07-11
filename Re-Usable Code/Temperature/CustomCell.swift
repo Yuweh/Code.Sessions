@@ -33,14 +33,7 @@
     
     private func thiContainerEnabler(isHidden: Bool) {
         self.thiStackView.isHidden = isHidden
-        self.sensorIcon.isHidden = !isHidden
-        self.sensorName.isHidden = !isHidden
-        self.sensorTemperature.isHidden = !isHidden
-        self.sensorTemperatureImage.isHidden = !isHidden
-        self.sensorHumidity.isHidden = !isHidden
-        self.sensorHumidityImage.isHidden = !isHidden
-        self.timeStamp.isHidden = !isHidden
-        self.activityIndicator.isHidden = !isHidden
+        self.defaultStackView.isHidden = !isHidden
     }
     
 
