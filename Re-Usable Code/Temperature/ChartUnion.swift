@@ -58,6 +58,13 @@
             chart.setYAxisProperties(mActiveDataType: 1, minY: 0.0, maxY: 100.0, unit: unit)
             
         case mChartTHI:
+            
+             let lLimit = data.getYMin()
+             let uLimit = data.getYMax()
+        
+            let min = [lLimit, datas.min()!.rounded()].min()!
+            let max = [uLimit, datas.max()!.rounded()].max()!
+            
             chart.changeData(lineChartData: data)
             chart.setYAxisProperties(mActiveDataType: 4, minY: 70.0, maxY: 90.0, unit: unit)
         default:
