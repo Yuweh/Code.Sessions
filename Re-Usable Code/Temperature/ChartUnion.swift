@@ -1,10 +1,12 @@
 
+    var xAxisValueFormatter: IAxisValueFormatter?
+
                 self.setChartData(datas: self.airComfortInfoViewModel.mTopYAxisData.value, chart: self.mChartTop)
                 self.setChartData(datas: self.airComfortInfoViewModel.mBottomYAxisData.value, chart: self.mChartBottom)
                 self.setChartData(datas: self.airComfortInfoViewModel.mTHIYAxisData.value, chart: self.mChartTHI)
 
 
-    private func setChartData(datas: [Double], chart: ChartHelper) {
+        private func setChartData(datas: [Double], chart: ChartHelper) {
         var chartDataEntry: [ChartDataEntry] = [ChartDataEntry]()
         
         for i in 0 ..< airComfortInfoViewModel.mTHIYAxisData.value.count {
@@ -34,6 +36,10 @@
         data.setDrawValues(false)
         data.setValueTextColor(TktConstants.Color.AirComfort.GridBackgroundColor)
         
+        chart.data = data
+        chart.xAxis.valueFormatter = self.xAxisValueFormatter
+        chart.xAxis.granularity = 1.0 // Set granularity always to reset xAxis Scale
+        
         let unit = self.preferences.integer(forKey: TktConstants.Key.UnitPreference)
         
         switch chart {
@@ -61,5 +67,13 @@
         if (chartSegmentedControl.selectedIndex == 1 || chartSegmentedControl.selectedIndex == 2) {
             // Zoom Chart for '1' == '7 Days' and '2' == 'Monthly' Tabs
             chart.zoomChart(numberOfDaysToZoom: 2)
+
         }
+        
+        if (data.entryCount < 30) {
+            chart.animate(xAxisDuration: 0.5)
+        } else {
+            chart.animate(xAxisDuration: 1.0, easingOption: .linear)
+        }
+
     }
