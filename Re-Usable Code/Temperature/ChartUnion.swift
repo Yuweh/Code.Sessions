@@ -66,7 +66,7 @@
             let max = [uLimit, datas.max()!.rounded()].max()!
             
             chart.changeData(lineChartData: data)
-            chart.setYAxisProperties(mActiveDataType: 4, minY: 70.0, maxY: 90.0, unit: unit)
+            chart.setYAxisProperties(mActiveDataType: 4, minY: min, maxY: max, unit: unit)
         default:
             return
         }
