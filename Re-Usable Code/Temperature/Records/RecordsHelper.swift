@@ -67,4 +67,38 @@ class RecordsHelper {
         }
     }
     
+    
+        
+    static func tempHumDataValidator(temp: Float, hum: Float, preferences: UserDefaults) {
+        
+        if (preferences.object(forKey: TktConstants.Key.SettingsInvalidRecordsVisibility) != nil) {
+            let recordSettings = preferences.integer(forKey: TktConstants.Key.SettingsInvalidRecordsVisibility)
+            if (recordSettings != 1) {
+                if temp <= -25 || temp >= 70 {
+                    return
+                }
+                
+                if hum <= 0 || hum >= 90 {
+                    return
+                }
+            }
+        }
+    }
+    
+    static func vocCO2DataValidator(voc: Float, co2: Float, preferences: UserDefaults) {
+        
+        if (preferences.object(forKey: TktConstants.Key.SettingsInvalidRecordsVisibility) != nil) {
+            let recordSettings = preferences.integer(forKey: TktConstants.Key.SettingsInvalidRecordsVisibility)
+            if (recordSettings != 1) {
+                if voc <= 125 || voc >= 600  {
+                    return
+                }
+                
+                if co2 <= 450 || co2 >= 2000 {
+                    return
+                }
+            }
+        }
+    }
+    
 }
