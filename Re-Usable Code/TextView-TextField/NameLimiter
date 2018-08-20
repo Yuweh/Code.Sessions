@@ -1,0 +1,37 @@
+// Custom Class Set for Delegate
+
+
+import Foundation
+
+class NameTextFieldDelegate: DefaultTextFieldDelegate {
+	
+	private let maxLength = 20
+	
+	func textField(_ textField: UITextField,
+				   shouldChangeCharactersIn range: NSRange,
+				   replacementString string: String) -> Bool  {
+		
+		let currentCharacterCount = textField.text?.count ?? 0
+		if (range.length + range.location > currentCharacterCount){
+			return false
+		}
+		
+		let newLength =
+			currentCharacterCount + string.count - range.length
+		
+		return newLength <= maxLength
+	}
+	
+	func textFieldDidEndEditing(_ textField: UITextField) {
+		textField.text = textField.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+	}
+}
+
+// MARK: UITextFieldDelegate
+class DefaultTextFieldDelegate: NSObject, UITextFieldDelegate {
+	
+	func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+		textField.resignFirstResponder()
+		return true
+	}
+}
