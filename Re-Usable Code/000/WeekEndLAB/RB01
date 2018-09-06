@@ -1,0 +1,78 @@
+
+
+import UIKit
+
+class RemoteBindTableViewController: UITableViewController {
+    
+    var actuators: [Device]! = []
+
+    var mDeviceIdsPerChannel: [Int: [String]] = [:]
+    var mCurrentChannelId: Int = 1
+    
+    var delegate: RemoteBindTableViewControllerDelegate?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        self.refreshDevices()
+        
+        self.tableView.register(UINib.init(nibName: "RemoteBindViewCell", bundle: nil),
+                                forCellReuseIdentifier: "RemoteBindViewCell")
+        
+    }
+
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+    }
+
+    // MARK: - Table view data source
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 1
+    }
+
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return actuators.count
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = self.tableView.dequeueReusableCell(withIdentifier: "RemoteBindViewCell", for: indexPath) as! RemoteBindViewCell
+        cell.currentDevice = actuators[indexPath.row]
+        
+        if let selectedActuators = self.mDeviceIdsPerChannel[mCurrentChannelId] {
+            if selectedActuators.contains(cell.currentDevice.getValueForAttributeName("core:MacAddress")!) {
+                self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+            } else {
+                self.tableView.deselectRow(at: indexPath, animated: false)
+            }
+        }
+        
+        return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let cell = self.tableView.cellForRow(at: indexPath) {
+            delegate?.remoteBindTableViewControllerSelect(on: actuators[indexPath.row], isSelected: cell.isSelected)
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        if let cell = self.tableView.cellForRow(at: indexPath) {
+            delegate?.remoteBindTableViewControllerSelect(on: actuators[indexPath.row], isSelected: cell.isSelected)
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 60.0
+    }
+    
+    public func refreshDevices() {
+        self.actuators = TDeviceManager.getInstance().getAllDeviceOrangeActuators()
+        self.tableView.reloadData()
+    }
+    
+    public func refreshData(channelID: Int, devicePerChannel: [Int: [String]]) {
+        self.mCurrentChannelId = channelID
+        self.mDeviceIdsPerChannel = devicePerChannel
+        self.tableView.reloadData()
+    }
+}
