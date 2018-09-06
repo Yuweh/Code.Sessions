@@ -1,0 +1,289 @@
+
+import UIKit
+
+protocol RemoteBindTableViewControllerDelegate {
+    func remoteBindTableViewControllerSelect(on device: Device, isSelected: Bool)
+}
+
+class RemoteBindViewController: BeeViewController {
+
+    @IBOutlet weak var topLabel: UILabel!
+    
+    @IBOutlet weak var tableView: UITableView!
+    
+    @IBOutlet weak var channel1: UIButton!
+    @IBOutlet weak var channel2: UIButton!
+    @IBOutlet weak var channel3: UIButton!
+    @IBOutlet weak var channel4: UIButton!
+    @IBOutlet weak var channel5: UIButton!
+    
+    @IBOutlet var remoteBindTableViewController: RemoteBindTableViewController!
+    
+    @IBOutlet weak var buttonBar: ButtonBar!
+    
+    var currentDevice: ZigbeeDevice!
+    
+    var tableState: BindingTableState!
+    
+    var mSelectedDevicePerChannel: [Int: [String]] = [:]
+    var mUnSelectedDevicePerChannel: [Int: [String]] = [:]
+    
+    var mCurrentChannelId: Int = 1
+    var mChannelCount: Int = 1
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.displayNavBar(true, animated: true)
+        
+        navigationItem.hidesBackButton = true
+        
+        self.buttonBar.titles = ["tahoma_common_js_ok".localized, "tahoma_common_js_cancel".localized]
+        self.buttonBar.addTarget(self, action: #selector(RemoteBindViewController.onBarButtonPressed), for: .valueChanged)
+        
+        self.remoteBindTableViewController.delegate = self
+        self.setupDevice()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        self.remoteBindTableViewController.refreshDevices()
+    }
+    
+    @IBAction func onChannelButtonPressed(_ sender: UIButton) {
+        
+        for button in [channel1, channel2, channel3, channel4, channel5] {
+            guard let b = button else {
+                continue
+            }
+            
+            if (b == sender) {
+                selectedButtonDisplay(button: b)
+            } else {
+                unselectedButtonDisplay(button: b)
+            }
+        }
+        
+        mCurrentChannelId = sender.tag
+        self.displayPreviouslySelectedActuator()
+    }
+    
+    @objc private func onBarButtonPressed() {
+        switch self.buttonBar.selectedIndex {
+        case 0:
+            if (self.getChangedDeviceBindingCount() > 0) {
+                let controller = ZigbeeBindViewController.init()
+                controller.currentDevice = self.currentDevice
+                controller.mDeviceIdsPerChannel = self.getSelectedDeviceIdsPerChannel()
+                controller.mUnselectedDeviceIdsPerChannel = self.getUnselectedDeviceIdsPerChannel()
+                
+                self.navigationController?.pushViewController(controller, animated: true)
+			} else {
+                self.animateTopLabel()
+			}
+            break
+        case 1:
+            self.navigationController?.popViewController(animated: true)
+        default:
+            break
+        }
+    }
+    
+    private func getChangedDeviceBindingCount() -> Int {
+        var count = 0
+        for (_, value) in getSelectedDeviceIdsPerChannel() {
+            count += value.count
+        }
+        
+        for (_, value) in getUnselectedDeviceIdsPerChannel() {
+            count += value.count
+        }
+        
+        return count
+    }
+    
+    func animateTopLabel() {
+        var bounds = topLabel.bounds
+        bounds.size = topLabel.intrinsicContentSize
+        UIView.animate(withDuration: 0.2, animations: {
+            self.topLabel.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+        }, completion: { done in
+            self.topLabel.transform = .identity
+            self.topLabel.bounds = bounds
+        })
+    }
+}
+
+// MARK: - RemoteBindTableViewControllerDelegate function
+extension RemoteBindViewController: RemoteBindTableViewControllerDelegate {
+    func remoteBindTableViewControllerSelect(on device: Device, isSelected: Bool) {
+        
+        if isSelected {
+            if let _ = self.mSelectedDevicePerChannel[mCurrentChannelId] {
+                self.mSelectedDevicePerChannel[mCurrentChannelId]?.append(device.getValueForAttributeName("core:MacAddress")!)
+            } else {
+                self.mSelectedDevicePerChannel[mCurrentChannelId] = [device.getValueForAttributeName("core:MacAddress")!]
+            }
+        } else {
+            if let index = self.mSelectedDevicePerChannel[mCurrentChannelId]?.index(of: device.getValueForAttributeName("core:MacAddress")!) {
+                self.mSelectedDevicePerChannel[mCurrentChannelId]?.remove(at: index)
+                    self.mUnSelectedDevicePerChannel[mCurrentChannelId] = [device.getValueForAttributeName("core:MacAddress")!]
+                
+                if self.mSelectedDevicePerChannel[mCurrentChannelId]?.count == 0 {
+                    self.mSelectedDevicePerChannel.removeValue(forKey: mCurrentChannelId)
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Getting the list of Binding and Unbinding dictionary
+extension RemoteBindViewController {
+    fileprivate func getSelectedDeviceIdsPerChannel() -> [Int : [String]] {
+        var devicePerChannel: [Int: [String]] = [:]
+        for c in 1...mChannelCount {
+            var selectedDeviceIds: [String] = []
+            
+            if let selectedDevice = self.mSelectedDevicePerChannel[c] {
+                for macAddress in selectedDevice {
+                    if !self.tableState.isBound(channel: c, macAddress: macAddress) {
+                        if let url = getUrl(of: macAddress) {
+                            selectedDeviceIds.append(url)
+                        }
+                    }
+                }
+                
+                if !selectedDeviceIds.isEmpty {
+                    devicePerChannel[c] = selectedDeviceIds
+                }
+            }
+        }
+        
+        return devicePerChannel
+    }
+    
+    fileprivate func getUnselectedDeviceIdsPerChannel() -> [Int: [String]] {
+        var unselectedDevicePerChannel: [Int: [String]] = [:]
+        for c in 1...mChannelCount {
+            var unselectedDeviceIds: [String] = []
+            
+            if let unselectedDevice = self.mUnSelectedDevicePerChannel[c] {
+                for macAddress in unselectedDevice {
+                    if self.tableState.isBound(channel: c, macAddress: macAddress) {
+                        if let url = getUrl(of: macAddress) {
+                            unselectedDeviceIds.append(url)
+                        }
+                    }
+                }
+                
+                if !unselectedDevice.isEmpty {
+                    unselectedDevicePerChannel[c] = unselectedDeviceIds
+                }
+            }
+        }
+        
+        return unselectedDevicePerChannel
+    }
+    
+    private func getUrl(of macAddress: String) -> String? {
+        for device in self.remoteBindTableViewController.actuators {
+            if macAddress == device.getValueForAttributeName("core:MacAddress") {
+                return device.deviceURL
+            }
+        }
+        return nil
+    }
+    
+    fileprivate func getUnselectedMacAddress(channel: Int) -> [String] {
+        var unselectedMacAddress: [String] = []
+        for device in self.remoteBindTableViewController.actuators {
+            if let macAddress = device.getValueForAttributeName("core:MacAddress"),
+                let selectedDeviceInChannel =  self.mSelectedDevicePerChannel[channel] {
+                if !selectedDeviceInChannel.contains(macAddress) && tableState.isBound(channel: channel, macAddress: macAddress) {
+                    unselectedMacAddress.append(macAddress)
+                }
+            }
+        }
+        
+        return unselectedMacAddress
+    }
+}
+
+// MARK: - Fileprivate function
+extension RemoteBindViewController {
+    fileprivate func setupDevice() {
+        guard let remoteDevice = self.currentDevice as? TEmptyRemoteController else {
+            return
+        }
+        
+        self.title = "\("binding_remote".localized) \(remoteDevice.deviceName)"
+        
+        self.mChannelCount = remoteDevice.channelCount
+        
+        if (self.mChannelCount > 1) {
+            // Multiple Channels
+            self.topLabel.text = "binding_label_multiple".localized
+            self.onChannelButtonPressed(channel1)
+            self.selectedButtonDisplay(button: channel1)
+        } else {
+            // Single Channel
+            showSingleChannelView()
+        }
+        
+        self.initializeChannel()
+        self.displayPreviouslySelectedActuator()
+    }
+    
+    fileprivate func selectedButtonDisplay(button: UIButton) {
+        button.backgroundColor = UIColor.white
+        button.setTitleColor(UIColor.somfyBlue(), for: .normal)
+    }
+    
+    fileprivate func unselectedButtonDisplay(button: UIButton) {
+        button.backgroundColor = UIColor.clear
+        button.setTitleColor(UIColor.white, for: .normal)
+    }
+    
+    fileprivate func showSingleChannelView() {
+        self.topLabel.text = "binding_label_single".localized
+        self.channel3.tag = 1
+        
+        for button in [channel1, channel2, channel4, channel5] {
+            button?.isHidden = true
+        }
+        
+        self.channel3.setTitle("1", for: .normal)
+        self.onChannelButtonPressed(channel3)
+        self.selectedButtonDisplay(button: channel3)
+    }
+    
+    fileprivate func initializeChannel() {
+        guard let zigbeeNetwork = EPOSAgent.defaultDeviceManager()?.device(withOID: currentDevice.getNodeUrl()) as? TZigbeeNetwork else {
+            return
+        }
+        
+        self.tableState = zigbeeNetwork.getBindingTableState()
+        
+        for actuator in self.remoteBindTableViewController.actuators {
+            for c in 1...self.mChannelCount {
+                
+                for macAddress in self.tableState.getBoundMacAddress(channel: c) {
+                    if macAddress == actuator.getValueForAttributeName("core:MacAddress") {
+                        if let _ = self.mSelectedDevicePerChannel[c] {
+                            self.mSelectedDevicePerChannel[c]?.append(actuator.getValueForAttributeName("core:MacAddress")!)
+                        } else {
+                            self.mSelectedDevicePerChannel[c] = [actuator.getValueForAttributeName("core:MacAddress")!]
+                        }
+                    }
+                }
+                
+            }
+        }
+    }
+    
+    fileprivate func displayPreviouslySelectedActuator() {
+        self.remoteBindTableViewController.refreshData(channelID: self.mCurrentChannelId,
+                                                       devicePerChannel: self.mSelectedDevicePerChannel)
+        
+    }
+}
