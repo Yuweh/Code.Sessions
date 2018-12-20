@@ -1,4 +1,23 @@
 
+//MARK: In APPDELEGATE 
+
+        if WifiConnectionManager.isConnectedToLocalGateway() {
+            self.localModeAlertBox()
+            return
+        }
+        
+    fileprivate func localModeAlertBox() {
+        let alert = UIAlertController(title: "", message: "This feature is not available in \nLocal Mode", preferredStyle: .alert)
+        let ok =  UIAlertAction(title: NSLocalizedString("tahoma_common_js_ok".localized, comment: ""), style: .cancel, handler: nil)
+        alert.addAction(ok)
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+
+
+
+
+
 //MARK: In APPDELEGATE (regardless of VC)    
 
     @objc func localModeAlertBox() {
