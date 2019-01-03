@@ -87,7 +87,34 @@
 }
     
     
-    
+    //CODE USED for: UIImagePickerController -> that has FlashModeSettings XD
+
+//
+	@objc fileprivate func takePicturePressed() {
+        if isFlashModeOn {
+            picker.cameraFlashMode = UIImagePickerControllerCameraFlashMode.on
+            picker.takePicture()
+            return
+        }
+        picker.cameraFlashMode = UIImagePickerControllerCameraFlashMode.off
+		picker.takePicture()
+	}
+
+
+
+//
+	@objc fileprivate func flashPressed(_ sender: UIButton) {
+		sender.isSelected = !sender.isSelected
+
+        if !sender.isSelected {
+            self.isFlashModeOn = false
+            return
+        }
+        self.isFlashModeOn = true
+        return
+	}
+
+
     
     
     
