@@ -8,18 +8,25 @@ reference: https://programmingwithswift.com/save-images-locally-with-swift-5/
 //
 
 import UIKit
+import RealmSwift
 
 enum StorageType {
     case userDefaults
     case fileSystem
+    case realmSwift
 }
 
 class MainViewController: UIViewController {
 
+    @IBOutlet weak var storageSegmentControl: UISegmentedControl!
     @IBOutlet weak var imageToSave: UIImageView!
     @IBOutlet weak var imageToLoad: UIImageView!
     @IBOutlet weak var saveBtn: UIButton!
     @IBOutlet weak var loadBtn: UIButton!
+    
+    let realm = try! Realm()
+    
+    var chosenStorageType: StorageType = StorageType.realmSwift
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,10 +37,24 @@ class MainViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        self.imageToLoad.isHidden = !(self.retrieveImage(forKey: "keyImage", inStorageType: StorageType.fileSystem) != nil)
+        self.imageToLoad.isHidden = !(self.retrieveImage(forKey: "keyImage", inStorageType: chosenStorageType) != nil)
         
-        if (self.retrieveImage(forKey: "keyImage", inStorageType: StorageType.userDefaults) != nil) {
-            self.imageToLoad.image = self.retrieveImage(forKey: "keyImage", inStorageType: StorageType.fileSystem)
+        if (self.retrieveImage(forKey: "keyImage", inStorageType: chosenStorageType) != nil) {
+            self.imageToLoad.image = self.retrieveImage(forKey: "keyImage", inStorageType: chosenStorageType)
+        }
+    }
+    
+    
+    @IBAction func dataSegmentControlsTapped(_ sender: UISegmentedControl) {
+        switch self.storageSegmentControl.selectedSegmentIndex {
+        case 0:
+            self.chosenStorageType = StorageType.userDefaults
+        case 1:
+            self.chosenStorageType = StorageType.fileSystem
+        case 2:
+            self.chosenStorageType = StorageType.realmSwift
+        default:
+            break
         }
     }
     
@@ -43,7 +64,7 @@ class MainViewController: UIViewController {
     
     @IBAction func loadBtnTapped(_ sender: Any) {
         self.imageToLoad.isHidden = false
-        self.imageToLoad.image = self.retrieveImage(forKey: "keyImage", inStorageType: StorageType.fileSystem)
+        self.imageToLoad.image = self.retrieveImage(forKey: "keyImage", inStorageType: chosenStorageType)
     }
     
     func checkNoteImageDataIsAvailable(key: String) -> Bool {
@@ -94,6 +115,19 @@ extension MainViewController {
             case .userDefaults:
                 UserDefaults.standard.set(pngRepresentation,
                                           forKey: key)
+            case .realmSwift:
+                print("RealmSwift ************ SAVING")
+                
+                let memo = MemoData()
+                memo.memoImage = pngRepresentation
+                
+                do {
+                    try realm.write {
+                        realm.add(memo)
+                    }
+                } catch {
+                    print("Error saving category \(error)")
+                }
             }
         }
     }
@@ -112,6 +146,8 @@ extension MainViewController {
                 let image = UIImage(data: imageData) {
                 return image
             }
+        case .realmSwift:
+            print("RealmSwift ************")
         }
         
         return nil
