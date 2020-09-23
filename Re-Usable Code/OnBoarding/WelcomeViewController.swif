@@ -1,18 +1,16 @@
 //
-//  WelcomeViewController.swift
-//  Heart Rate Detector
 //
-//  Created by  on 9/20/20.
-//  Copyright © 2020  All rights reserved.
 //
 
 import UIKit
 
-class WelcomeViewController: UIViewController {
+class PreLoginViewController: UIViewController {
 
     @IBOutlet weak var holderView: UIView!
     
     let scrollView = UIScrollView()
+    
+    // title, image, description, button
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,7 +29,7 @@ class WelcomeViewController: UIViewController {
         scrollView.frame = holderView.bounds
         holderView.addSubview(scrollView)
         
-        let titles = ["Welcome", "How It Measures", "What's its Value"]
+        let titles = ["Charge Quickly in just 3 mins", "Multiple charging stations available", "Your transaction is secured"]
         
         for x in 0..<3 {
             let pageView = UIView(frame: CGRect(x: CGFloat(x) * (holderView.frame.size.width), y: 10, width: holderView.frame.size.width, height: holderView.frame.size.height))
@@ -43,7 +41,7 @@ class WelcomeViewController: UIViewController {
             let button = UIButton(frame: CGRect(x: 10, y: pageView.frame.size.height-60, width: pageView.frame.size.width-20, height: 50))
             
             label.textAlignment = .center
-            label.font = UIFont(name: "Helvetica-Bold", size: 32)
+            label.font = UIFont(name: "Helvetica-Bold", size: 22)
             pageView.addSubview(label)
             label.text = titles[x]
             
@@ -81,4 +79,26 @@ class WelcomeViewController: UIViewController {
     
 }
 
+class Core {
+    
+    static let shared = Core()
+    
+    func isNewUser() -> Bool {
+        return !UserDefaults.standard.bool(forKey: "isNewUser")
+    }
+    
+    func setIsNotNewUser() {
+        UserDefaults.standard.set(true, forKey: "isNewUser")
+    }
+}
 
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if Core.shared.isNewUser() {
+            //show boarding
+            let vc = storyboard?.instantiateViewController(identifier: "prelogin") as! PreLoginViewController
+            vc.modalPresentationStyle = .fullScreen
+            present(vc, animated: true, completion: nil)
+        }
+    }
